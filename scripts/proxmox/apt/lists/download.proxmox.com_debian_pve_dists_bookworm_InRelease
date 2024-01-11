@@ -1,0 +1,42 @@
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA256
+
+Architectures: amd64
+Changelogs: https://metadata.cdn.proxmox.com/download/changelogs/pve/dists/bookworm/@CHANGEPATH@.changelog
+Codename: bookworm
+Components: pve-no-subscription pvetest
+Date: Wed, 20 Dec 2023 13:26:32 +0000
+Label: Proxmox Debian Repository
+Origin: Proxmox
+Suite: stable
+MD5Sum:
+ 10c0ea14a52ec10c91d5b03e2adf73ba          1018852 pve-no-subscription/binary-amd64/Packages
+ 5b77a1f5244695032ba8b313fb264ce7           224940 pve-no-subscription/binary-amd64/Packages.gz
+ 173b9a5d83af5dae0c9a6107b9b064b4          1009440 pvetest/binary-amd64/Packages
+ 24e80a2d90f1c9f223420684bf5c011c           225063 pvetest/binary-amd64/Packages.gz
+SHA256:
+ 93348ade4eb83df585f4f92bee2db6a6ddd526263ec355b7c6e033be2eb12f22          1018852 pve-no-subscription/binary-amd64/Packages
+ e430f11603c8b961d79909ebf28ec84fb9f08329a9a091f75cc55d766053e7c1           224940 pve-no-subscription/binary-amd64/Packages.gz
+ f70a0151ffc5641885dc9d313d64bf0cfa1819f3bd5b38a0f42689632eeb082b          1009440 pvetest/binary-amd64/Packages
+ 9281050c1a340c89a99456efad006543058c6c902c5da3fc2bfa028a66836bbf           225063 pvetest/binary-amd64/Packages.gz
+SHA512:
+ ce43f16290a34da143e4ea174fc0ce1bc8417180b6d8558b583fdecd521eda4a99e1a843798a0b889383f6dc65cea7aca9a4105a49b9e967dfb08458da9c0f98          1018852 pve-no-subscription/binary-amd64/Packages
+ 20de146b1eabcbbce284bb96420a23ec72e34a508d1136759d3c70e589eb2e6cd203e6972e8007c4eb465789ccdc3d3cbc2d59782665ce050464f670085a9e33           224940 pve-no-subscription/binary-amd64/Packages.gz
+ 09a06ff7fd9fe2fbd189111b87ce4fc051446ccde6a60771befa6ad8eb20e860a3a2ad3430cbca773bcbeefbf997faf6aa716d85ee36b39a422e3c87922bb1a1          1009440 pvetest/binary-amd64/Packages
+ 38d6246ece90a722810a8c9a971b4e337678162d4a039d556e58b2d576ba20a25cbf3d26dc8db0e227afa300d81fd5af6c9fd9af3983c09e5a7cfc53233f3428           225063 pvetest/binary-amd64/Packages.gz
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCAAdFiEE9OE2xnzc5Brm3m/IEUCvj2OeDDkFAmWC64wACgkQEUCvj2Oe
+DDnlxxAAuzLO05nRB3jh7bp6IDyviqn2x9dZqslhHXov66ESY+gTm8EzuOLpSYjM
+tQU35kh/RDX1yLLNa3vdmxfCB6U1gSKHfz0AydX73q31+2O02YgogPRg31V7tXBt
+7ahRepaC3ELudutCRkZ5VAOwYdZ9E/h7+MyH7/iTP9dgqccjn+AA8tJob/Pr6qXT
+3YuGG9+GvNByD/lQtP0Io1l39o2P6l4tSVXexw9MZjYgRgx8zq/yvAppx0Xr1/xm
+rohebnRynTODgOAqeVFZu27p11KED53JpHTNYPcvsEdSMDjmqCW0jJKfIoLTX4IL
+OMBiwYlJa/A/eBkbMnwcPEYjvPntMWhbw/iz2brwLFyCsEDzGs8X5IANdPVxtH+V
+LdoVpbm01BYGgBlu5J0NXMZUA/0w1frAg5OvjZyd4qQWg1YYv8refnEuP92p+691
+zsQQT2WBCRASec0dw5T8fjIQKHGgJ12HgYesXGVd0lEzvlJCvOoXnlJKS797ne+L
+3SSvwOqhLixuOAPecIwOR9a5hVD0Oj8BvHFPIMTToUbThngz/qfnp4ohzJMJEkM3
+1KDtdmTlSkbnRBCwME6YArMVUejALn3CjO2OOfg/2nIlCrifFu9RlCdOGGQe+TZU
+mXaFX28DvXNh675nc7y6YIoOihQuaM0A6OomqWi/wYRylYx31nU=
+=wON4
+-----END PGP SIGNATURE-----

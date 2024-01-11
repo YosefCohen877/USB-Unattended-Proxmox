@@ -1,0 +1,3 @@
+ip:10.0.0.109/24
+gateway:10.0.0.254
+hostname:proxmox09

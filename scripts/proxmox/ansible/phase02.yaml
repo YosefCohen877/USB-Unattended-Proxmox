@@ -1,0 +1,79 @@
+---
+- name: Configure Proxmox and System Settings
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Remove the post-reboot cron job
+      cron:
+        name: "Run Ansible post-reboot"
+        state: absent
+        user: root
+
+    - name: Echo 25% progress with leading newlines to /dev/tty1
+      ansible.builtin.shell:
+        cmd: echo "\n\nphase02 is running" > /dev/tty1
+      ignore_errors: yes
+
+    - name: Remove specific linux-image packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - linux-image-amd64
+        - 'linux-image-6.1*'
+
+    - name: Preseed Postfix selections for Proxmox VE installation
+      ansible.builtin.debconf:
+        name: postfix
+        question: postfix/main_mailer_type
+        value: 'Local only'
+        vtype: select
+
+    - name: Install Proxmox VE, Postfix, and open-iscsi
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - proxmox-ve
+        - postfix
+        - open-iscsi
+        - htop
+
+    - name: Echo 50% progress to /dev/tty1
+      ansible.builtin.shell:
+        cmd: echo "phase02 in 50%" > /dev/tty1
+      ignore_errors: yes
+
+    - name: Configure PermitRootLogin in sshd
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin yes'
+        validate: '/usr/sbin/sshd -t -f %s'
+
+    - name: Remove os-prober
+      ansible.builtin.apt:
+        name: os-prober
+        state: absent
+
+    - name: Remove no valid sub popup
+      ansible.builtin.replace:
+        path: /usr/share/javascript/proxmox-widget-toolkit/proxmoxlib.js
+        regexp: >-
+          (^\s+)(Ext.Msg.show\(\{\s+title:\s+gettext\('No valid subscription)
+        replace: '\1void({ //\2'
+      notify: Restart pveproxy.service
+
+  handlers:
+    - name: Restart pveproxy.service
+      ansible.builtin.service:
+        name: pveproxy
+        state: restarted
+
+    - name: Reboot
+      ansible.builtin.service:
+        name: reboot.target
+        state: started
+
+    - name: Ending playbook
+      meta: end_play
