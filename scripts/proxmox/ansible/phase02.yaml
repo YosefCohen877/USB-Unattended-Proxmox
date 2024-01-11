@@ -62,9 +62,7 @@
         regexp: >-
           (^\s+)(Ext.Msg.show\(\{\s+title:\s+gettext\('No valid subscription)
         replace: '\1void({ //\2'
-      notify: Restart pveproxy.service
 
-  handlers:
     - name: Restart pveproxy.service
       ansible.builtin.service:
         name: pveproxy
