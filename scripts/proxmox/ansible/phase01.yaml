@@ -1,0 +1,125 @@
+---
+- name: Configure Proxmox and System Settings
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Read ipaddr.txt
+      ansible.builtin.slurp:
+        src: /mnt/proxmox/ipaddr.txt
+      register: ipaddr_file
+    
+    - name: Decode ipaddr.txt content
+      set_fact:
+        ipaddr_content: "{{ (ipaddr_file['content'] | b64decode).splitlines() }}"
+    
+    - name: Extract Hostname from ipaddr.txt
+      set_fact:
+        hostname_value: "{{ item.split(':')[1] | trim }}"
+      loop: "{{ ipaddr_content }}"
+      when: "'hostname:' in item"
+    
+    - name: Extract IP address from ipaddr.txt
+      set_fact:
+        vmbr0_ip: "{{ item.split(':')[1] }}"
+      loop: "{{ ipaddr_content }}"
+      when: "'ip:' in item"
+      no_log: true
+    
+    - name: Extract gateway from ipaddr.txt
+      set_fact:
+        vmbr0_gateway: "{{ item.split(':')[1] }}"
+      loop: "{{ ipaddr_content }}"
+      when: "'gateway:' in item"
+      no_log: true
+    
+    - name: Set system hostname
+      ansible.builtin.hostname:
+        name: "{{ hostname_value }}"
+    
+    - name: Find the existing interface with static IP
+      ansible.builtin.shell:
+        cmd: "grep -P 'iface\\s+\\w+\\s+inet\\s+static' /etc/network/interfaces | awk '{print $2}' | head -1"
+      register: existing_interface_result
+    
+    - name: Set the existing interface variable
+      set_fact:
+        existing_interface: "{{ existing_interface_result.stdout }}"
+    
+    - name: Backup current /etc/network/interfaces
+      ansible.builtin.copy:
+        src: /etc/network/interfaces
+        dest: "/etc/network/interfaces.backup"
+        backup: yes
+    
+    - name: Create new /etc/network/interfaces
+      ansible.builtin.copy:
+        content: |
+          source /etc/network/interfaces.d/*
+    
+          auto lo
+          iface lo inet loopback
+    
+          iface {{ existing_interface }} inet manual
+    
+          auto vmbr0
+          iface vmbr0 inet static
+              address {{ vmbr0_ip }}
+              gateway {{ vmbr0_gateway }}
+              bridge-ports {{ existing_interface }}
+              bridge-stp off
+              bridge-fd 0
+        dest: /etc/network/interfaces
+    
+    - name: Remove old Proxmox host entry from /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        regexp: '^10\.0\.0\.100\s+proxmox01\.unassigned-domain\s+proxmox01$'
+        state: absent
+    
+    - name: Add new Proxmox host entry to /etc/hosts
+      ansible.builtin.lineinfile:
+        path: /etc/hosts
+        line: "{{ vmbr0_ip.split('/')[0] }} {{ hostname_value }}"
+        state: present
+
+    - name: Full system upgrade
+      ansible.builtin.apt:
+        upgrade: 'full'
+        
+    - name: Install Proxmox default kernel from cache
+      ansible.builtin.apt:
+        name: proxmox-default-kernel
+        state: present
+        update_cache: no
+        cache_valid_time: 0
+
+    - name: Add cron job to run Ansible playbook after reboot
+      cron:
+        name: "Run Ansible post-reboot"
+        special_time: reboot
+        job: "/usr/bin/ansible-playbook /mnt/proxmox/ansible/phase02.yaml > /mnt/proxmox/ansible/phase02.log 2>&1"
+        user: root
+
+    - name: Disable systemd service
+      ansible.builtin.systemd:
+        name: post-install.service
+        enabled: no
+        daemon_reload: no
+
+    - name: Remove systemd service file
+      ansible.builtin.file:
+        path: /etc/systemd/system/post-install.service
+        state: absent
+
+    - name: Remove post-install script
+      ansible.builtin.file:
+        path: /root/post_install_script.sh
+        state: absent
+
+    - name: Reboot
+      ansible.builtin.service:
+        name: reboot.target
+        state: started
+
+    - name: Ending playbook
+      meta: end_play

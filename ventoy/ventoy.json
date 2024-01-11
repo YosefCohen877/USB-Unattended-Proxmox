@@ -1,0 +1,20 @@
+{
+    "theme":{
+        "gfxmode": "1920x1080"
+    },
+    "auto_install":[
+        {
+            "image": "/ISO/debian-12.4.0-amd64-netinst.iso",
+            "template":[
+                "/scripts/debian.cfg"
+            ]
+        }
+    ],
+    "conf_replace":[
+        {
+            "iso": "/ISO/debian-12.4.0-amd64-netinst.iso",
+            "org": "/isolinux/splash.png",
+            "new": "/scripts/drone.png"
+        }
+    ]
+}
