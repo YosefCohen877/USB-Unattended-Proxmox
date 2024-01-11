@@ -1,15 +1,11 @@
 #!/bin/bash
-# Define directories
-kernel_dir="./kernel"
-pve_dir="./pve"
-system_dir="./system"
-ansible_dir="./ansible"
+# Define the target directory for packages and APT sources
+packages_dir="/proxmox/apt/packages"
+apt_dir="/proxmox/apt"
 
-# Create directories
-mkdir -p "$kernel_dir"
-mkdir -p "$pve_dir"
-mkdir -p "$system_dir"
-mkdir -p "$ansible_dir"
+# Create the directories
+mkdir -p "$packages_dir"
+mkdir -p "$apt_dir"
 
 # Function to update sources and keys
 update_sources_and_keys() {
@@ -18,10 +14,9 @@ update_sources_and_keys() {
     apt-get update
 }
 
-# Function to download and move packages
+# Function to download packages
 download_packages() {
     package_name=$1
-    target_dir=$2
 
     echo "Downloading packages for $package_name..."
     dependencies=$(apt-rdepends $package_name | grep -v "^ " | grep -v "Depends")
@@ -31,8 +26,8 @@ download_packages() {
         apt-get install --download-only -y $dep
     done
 
-    echo "Moving downloaded packages for $package_name to $target_dir..."
-    find /var/cache/apt/archives -name "*.deb" -exec mv {} "$target_dir/" \;
+    echo "Moving downloaded packages for $package_name to $packages_dir..."
+    find /var/cache/apt/archives -name "*.deb" -exec mv {} "$packages_dir/" \;
 }
 
 # Update sources and keys
@@ -45,16 +40,17 @@ apt-get install apt-rdepends -y
 apt-get update
 apt-get full-upgrade --download-only -y
 
-# Move system update packages to the system directory
-find /var/cache/apt/archives -name "*.deb" -exec mv {} "$system_dir/" \;
+# Move all downloaded packages to the target directory
+find /var/cache/apt/archives -name "*.deb" -exec mv {} "$packages_dir/" \;
 
-# Download Proxmox VE kernel packages
-download_packages "proxmox-default-kernel" "$kernel_dir"
+# Download packages for Proxmox VE, Ansible, and their dependencies
+download_packages "proxmox-default-kernel"
+download_packages "proxmox-ve postfix open-iscsi openssh-client openssh-sftp-server openssh-server htop"
+download_packages "ansible"
 
-# Download Proxmox VE related packages and their dependencies
-download_packages "proxmox-ve postfix open-iscsi openssh-client openssh-sftp-server openssh-server" "$pve_dir"
+# Copy the sources.list, sources.list.d, and lists to the target APT directory
+cp /etc/apt/sources.list "$apt_dir/"
+cp -r /etc/apt/sources.list.d "$apt_dir/"
+cp -r /var/lib/apt/lists "$apt_dir/"
 
-# Download Ansible and its dependencies
-download_packages "ansible" "$ansible_dir"
-
-echo "Download completed. Packages are in 'kernel', 'pve', 'system', and 'ansible' directories."
+echo "Download and copy completed. Packages and APT sources are in '$packages_dir' and '$apt_dir'."
